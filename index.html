@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <title>Vite App</title>
   <style>
     /* CSS für das Distanz-Overlay */
@@ -47,28 +46,8 @@
       font-size: 12px;
       color: white;
     }
-    #minimap {
-    position: fixed;
-    bottom: 10px;
-    left: 10px;
-    width: 120px;
-    height: 120px;
-    z-index: 1000;
-    border: 2px solid #ccc;
-    cursor: pointer;
-    transition: width 0.3s, height 0.3s;
-  }
-
-  /* Klasse, um die Karte zu vergrößern */
-  #minimap.enlarged {
-    width: 90vw;
-    height: 90vh;
-    bottom: 5%;
-    left: 5%;
-    border: 3px solid #333;
-  }
   </style>
-  <script type="module" crossorigin src="./assets/index-D0W9sjAl.js"></script>
+  <script type="module" crossorigin src="./assets/index-CmdYPd3D.js"></script>
 </head>
 <body>
   <div id="overlay">
@@ -89,7 +68,5 @@
     <div id="compassText"></div>
   </div>
   <div id="app"></div>
-  <div id="minimap"></div>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </body>
 </html>
