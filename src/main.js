@@ -6,7 +6,7 @@ import * as LocAR from './locar/dist/locar.es.js';
 // Global variables
 var scene, camera, renderer, gltfloader, pfeilARObjekt, zielmarkerARObjekt;
 var locar, cam, absoluteDeviceOrientationControls;
-
+var portraitMode = window.matchMedia("(orientation: portrait)").matches;
 var targetCoords = { longitude: 7.651058, latitude: 51.935260 }; // Zielkoordinaten
 var currentCoords = { longitude: null, latitude: null }; // Nutzerkoordinaten
 
@@ -54,17 +54,19 @@ function init() {
   camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.001, 500);
   scene.add(camera);
 
-  renderer = new THREE.WebGLRenderer();
+  renderer = new THREE.WebGLRenderer( { logarithmicDepthBuffer: true } );
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(window.devicePixelRatio);
+
   document.body.appendChild(renderer.domElement);
 
   window.addEventListener("resize", () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
+    locar.update();
   });
-
+  
   // LocAR initialisieren
   locar = new LocAR.LocationBased(scene, camera, { gpsMinDistance: 1});
   cam = new LocAR.WebcamRenderer(renderer);
@@ -129,22 +131,24 @@ function updateCompass() {
   if (!absoluteDeviceOrientationControls.deviceOrientation) return;
 
   let heading = absoluteDeviceOrientationControls.getAlpha() * (180 / Math.PI);
+
+  console.log("Heading am Anfang:", heading);
+
   if (isIOS && absoluteDeviceOrientationControls.deviceOrientation?.webkitCompassHeading) {
-    heading = absoluteDeviceOrientationControls.deviceOrientation.webkitCompassHeading; // Korrektur
+    heading = 360 - absoluteDeviceOrientationControls.deviceOrientation.webkitCompassHeading;
   }
-  else {
-    heading = -heading;
-  }  
 
-  // Normalisieren auf 0-360 Grad
-  heading = (heading + 360) % 360;
-
+  console.log("Heading nach iOS:", heading);
+  if(!portraitMode) {
+    heading = (heading - 90 + 360) % 360;
+  }
+  console.log("Heading nach Portrait:", heading);
   if (heading !== null) {
-    compassArrow.style.transform = `rotate(${-heading}deg)`; // Invertiere Drehung
+    compassArrow.style.transform = `rotate(${heading}deg)`;
     compassText.innerText = `${Math.round(heading)}°`;
   }
+  console.log("Heading am Ende:", heading);
 }
-
 
 /**
  * Berechnet die Distanz zwischen zwei Punkten auf der Erde
@@ -181,41 +185,31 @@ function updateArrow() {
   // Zielstandort in Weltkoordinaten (x, z von lonLatToWorldCoords; y konstant 1.5)
   const lonlatTarget = locar.lonLatToWorldCoords(targetCoords.longitude, targetCoords.latitude);
   const targetWorldPos = new THREE.Vector3(lonlatTarget[0], 1.5, lonlatTarget[1]);
-  
+
   // Nutzerstandort in Weltkoordinaten (x, z; y konstant 1.5)
   const lonlatUser = locar.lonLatToWorldCoords(currentCoords.longitude, currentCoords.latitude);
   const userWorldPos = new THREE.Vector3(lonlatUser[0], 1.5, lonlatUser[1]);
   
+  // Pfeilberechnungen:
   // Vektor vom Nutzer zum Ziel
   const direction = new THREE.Vector3().subVectors(targetWorldPos, userWorldPos);
   
   // Bestimme den Winkel (in Radianten) des Richtungsvektors in der horizontalen Ebene
   const targetAngle = Math.atan2(direction.x, direction.z);
   
-  // Nutzer-Heading (in Radianten) über getAlpha() – dieser Wert ist für beide Plattformen konsistent
-  const userHeading = absoluteDeviceOrientationControls.getAlpha();
-  
-  // Berechne den relativen Winkel
+  // Nutzer-Heading aus den Sensoren holen
+  let userHeading = absoluteDeviceOrientationControls.getAlpha();
+  const compensation = (window.screen.orientation.angle || 0) * (Math.PI / 180);
+  userHeading -= compensation;
+
+  // Dann den relativen Winkel berechnen
   let relativeAngle = targetAngle - userHeading;
-  
-  // Korrigiere auf iOS: wenn der Pfeil um 180° falsch ist, addiere π
-  //if (isIOS) {
-    relativeAngle += Math.PI;
-  //}
-  
-  // Normiere den Winkel auf den Bereich -π ... π (optional)
+  // Falls eine zusätzliche Korrektur (z. B. für iOS) notwendig ist, hier anwenden:
+  relativeAngle += Math.PI;
+
+  // Normalisieren
   relativeAngle = ((relativeAngle + Math.PI) % (2 * Math.PI)) - Math.PI;
-  
-  // Setze die Rotation des Pfeils (nur um die Y-Achse)
   pfeilARObjekt.rotation.set(0, relativeAngle, 0);
-  
-  // Debug-Ausgaben Test
-  console.log("UserWorldPos:", userWorldPos);
-  console.log("TargetWorldPos:", targetWorldPos);
-  console.log("Direction:", direction);
-  console.log("Target angle (rad):", targetAngle);
-  console.log("User heading (rad, getAlpha):", userHeading);
-  console.log("Relative angle (rad):", relativeAngle);
 }
 
 /**
@@ -227,3 +221,7 @@ function updateDistance() {
   const distance = computeDistance(currentCoords.latitude, currentCoords.longitude, targetCoords.latitude, targetCoords.longitude);
   distanceOverlay.innerText = `${Math.round(distance)} m`;
 }
+
+window.matchMedia("(orientation: portrait)").addEventListener("change", e => {
+  portraitMode = e.matches;
+});
