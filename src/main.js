@@ -1,4 +1,4 @@
-import { AbsoluteDeviceOrientationControls, isIOS } from './AbsoluteDeviceOrientationControls.js';
+import { AbsoluteDeviceOrientationControls, isIOS, setObjectQuaternion } from './AbsoluteDeviceOrientationControls.js';
 import { THREE } from './AbsoluteDeviceOrientationControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as LocAR from './locar/dist/locar.es.js';
@@ -61,10 +61,19 @@ function init() {
   document.body.appendChild(renderer.domElement);
 
   window.addEventListener("resize", () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    locar.update();
+    if (isIOS) {
+      setTimeout(() => {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        //distanceOverlay.innerText = `zielmarker Position neu: X=${zielmarkerARObjekt.position.x}, Y=${zielmarkerARObjekt.position.y}, Z=${zielmarkerARObjekt.position.z}`;
+      }, 200);
+    } else {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+    }
+    //console.log("zielmarker Position", zielmarkerARObjekt.position.x, zielmarkerARObjekt.position.y, zielmarkerARObjekt.position.z);
   });
   
   // LocAR initialisieren
@@ -88,6 +97,7 @@ function init() {
       zielmarkerARObjekt = new THREE.Sprite(markerMaterial);
       zielmarkerARObjekt.scale.set(5, 5, 1);
       locar.add(zielmarkerARObjekt, targetCoords.longitude, targetCoords.latitude);
+      //distanceOverlay.innerText = `zielmarker Position alt: X=${zielmarkerARObjekt.position.x}, Y=${zielmarkerARObjekt.position.y}, Z=${zielmarkerARObjekt.position.z}`;
 
       // Initialen Pfeil laden (einmalig)
       gltfloader.load('./glbmodell/Pfeil5.glb', function (gltf) {
@@ -132,22 +142,19 @@ function updateCompass() {
 
   let heading = absoluteDeviceOrientationControls.getAlpha() * (180 / Math.PI);
 
-  console.log("Heading am Anfang:", heading);
-
   if (isIOS && absoluteDeviceOrientationControls.deviceOrientation?.webkitCompassHeading) {
     heading = 360 - absoluteDeviceOrientationControls.deviceOrientation.webkitCompassHeading;
   }
 
-  console.log("Heading nach iOS:", heading);
   if(!portraitMode) {
     heading = (heading - 90 + 360) % 360;
   }
-  console.log("Heading nach Portrait:", heading);
+
   if (heading !== null) {
     compassArrow.style.transform = `rotate(${heading}deg)`;
     compassText.innerText = `${Math.round(heading)}°`;
   }
-  console.log("Heading am Ende:", heading);
+
 }
 
 /**
@@ -181,6 +188,8 @@ function updateArrow() {
   if (!pfeilARObjekt || currentCoords.longitude === null || currentCoords.latitude === null) {
     return;
   }
+
+  //distanceOverlay.innerText = `zielmarker Position neu: Alpha=${absoluteDeviceOrientationControls.getAlpha().toFixed(2)}, Beta=${absoluteDeviceOrientationControls.getBeta().toFixed(2)}, Gamma=${absoluteDeviceOrientationControls.getGamma().toFixed(2)}`;
   
   // Zielstandort in Weltkoordinaten (x, z von lonLatToWorldCoords; y konstant 1.5)
   const lonlatTarget = locar.lonLatToWorldCoords(targetCoords.longitude, targetCoords.latitude);
@@ -190,6 +199,7 @@ function updateArrow() {
   const lonlatUser = locar.lonLatToWorldCoords(currentCoords.longitude, currentCoords.latitude);
   const userWorldPos = new THREE.Vector3(lonlatUser[0], 1.5, lonlatUser[1]);
   
+  console.log("Target World Position: ", targetWorldPos);
   // Pfeilberechnungen:
   // Vektor vom Nutzer zum Ziel
   const direction = new THREE.Vector3().subVectors(targetWorldPos, userWorldPos);
@@ -210,6 +220,33 @@ function updateArrow() {
   // Normalisieren
   relativeAngle = ((relativeAngle + Math.PI) % (2 * Math.PI)) - Math.PI;
   pfeilARObjekt.rotation.set(0, relativeAngle, 0);
+
+
+  // Berechne den sensorbasierten Y-Winkel (ohne Kompass)
+  const tempQuat = new THREE.Quaternion();
+  const alpha = absoluteDeviceOrientationControls.getAlpha();
+  const beta  = absoluteDeviceOrientationControls.getBeta();
+  const gamma = absoluteDeviceOrientationControls.getGamma();
+  const orient = absoluteDeviceOrientationControls.screenOrientation || 0;
+  setObjectQuaternion(tempQuat, alpha, beta, gamma, orient);
+  const tempEuler = new THREE.Euler().setFromQuaternion(tempQuat, 'YXZ');
+  const sensorY = tempEuler.y;
+
+  // Berechne den kompassbasierten Y-Winkel (wie in deiner iOS-Logik)
+  const compassY = THREE.MathUtils.degToRad(360 - absoluteDeviceOrientationControls.deviceOrientation.webkitCompassHeading);
+  const delta = compassY - sensorY;
+
+  // Ursprüngliche Markerposition in Weltkoordinaten
+  const markerPos = new THREE.Vector3(lonlatTarget[0], 1.5, lonlatTarget[1]);
+
+  // Markerposition relativ zur Kamera korrigieren
+  markerPos.sub(camera.position);
+  markerPos.applyAxisAngle(new THREE.Vector3(0,1,0), delta);
+  markerPos.add(camera.position);
+
+  // Setze die korrigierte Position
+  zielmarkerARObjekt.position.copy(markerPos);
+
 }
 
 /**

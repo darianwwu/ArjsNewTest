@@ -172,3 +172,13 @@ AbsoluteDeviceOrientationControls.prototype = Object.assign(Object.create(THREE.
 })
 export { AbsoluteDeviceOrientationControls }
 export { THREE }
+export function setObjectQuaternion(quaternion, alpha, beta, gamma, orient) {
+  const zee = new THREE.Vector3(0, 0, 1);
+  const euler = new THREE.Euler();
+  const q0 = new THREE.Quaternion();
+  const q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+  euler.set(beta, alpha, -gamma, 'YXZ'); // 'ZXY' for the device, but 'YXZ' for us
+  quaternion.setFromEuler(euler);
+  quaternion.multiply(q1);
+  quaternion.multiply(q0.setFromAxisAngle(zee, -orient));
+}
