@@ -54,6 +54,7 @@ h1 {
   text-align: center;
   z-index: 1000; /* Sicherstellen, dass es über dem Video ist */
 }
+
 #compassContainer {
   position: fixed;
   top: 20px;
@@ -67,6 +68,7 @@ h1 {
   justify-content: center;
   z-index: 10000;
 }
+
 #compassArrow {
   font-size: 40px;
   color: white;
@@ -85,7 +87,7 @@ h1 {
   position: fixed;
   top: 50%;
   right: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   background-color: rgba(0, 0, 0, 0.8);
   color: white;
   padding: 15px 20px;
