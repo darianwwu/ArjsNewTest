@@ -9,12 +9,29 @@ var locar, cam, absoluteDeviceOrientationControls;
 var portraitMode = window.matchMedia("(orientation: portrait)").matches;
 var targetCoords = { longitude: 7.651058, latitude: 51.935260 }; // Zielkoordinaten
 var currentCoords = { longitude: null, latitude: null }; // Nutzerkoordinaten
+let originalMarkerPosition = new THREE.Vector3();
 
 const lonInput = document.getElementById("longitude"); // HTML-Inputfeld für Längengrad
 const latInput = document.getElementById("latitude"); // HTML-Inputfeld für Breitengrad
 const distanceOverlay = document.getElementById("distance-overlay"); // HTML-Distanzanzeige
 const compassArrow = document.getElementById("compassArrow"); // Kompass-Pfeil
 const compassText = document.getElementById("compassText");// Kompass-Text
+
+// Hole das Popup und den Close-Button aus dem DOM
+const markerPopup = document.getElementById("markerPopup");
+const closeButton = document.getElementById("popupClose");
+
+// Klick-Listener für den Close-Button
+closeButton.addEventListener("click", () => {
+  markerPopup.style.display = "none";
+});
+
+// Für den erweiterten Klickbereich:
+const clickBuffer = 50;
+
+// Raycaster- und Maus-Vektor für Klicks
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
 
 /**
  * Onload-Event: Wartet bis die Seite geladen ist, um die Initialisierung zu starten
@@ -189,64 +206,49 @@ function updateArrow() {
     return;
   }
 
-  //distanceOverlay.innerText = `zielmarker Position neu: Alpha=${absoluteDeviceOrientationControls.getAlpha().toFixed(2)}, Beta=${absoluteDeviceOrientationControls.getBeta().toFixed(2)}, Gamma=${absoluteDeviceOrientationControls.getGamma().toFixed(2)}`;
-  
-  // Zielstandort in Weltkoordinaten (x, z von lonLatToWorldCoords; y konstant 1.5)
   const lonlatTarget = locar.lonLatToWorldCoords(targetCoords.longitude, targetCoords.latitude);
   const targetWorldPos = new THREE.Vector3(lonlatTarget[0], 1.5, lonlatTarget[1]);
 
-  // Nutzerstandort in Weltkoordinaten (x, z; y konstant 1.5)
   const lonlatUser = locar.lonLatToWorldCoords(currentCoords.longitude, currentCoords.latitude);
   const userWorldPos = new THREE.Vector3(lonlatUser[0], 1.5, lonlatUser[1]);
-  
-  console.log("Target World Position: ", targetWorldPos);
-  // Pfeilberechnungen:
-  // Vektor vom Nutzer zum Ziel
+
   const direction = new THREE.Vector3().subVectors(targetWorldPos, userWorldPos);
-  
-  // Bestimme den Winkel (in Radianten) des Richtungsvektors in der horizontalen Ebene
   const targetAngle = Math.atan2(direction.x, direction.z);
-  
-  // Nutzer-Heading aus den Sensoren holen
+
   let userHeading = absoluteDeviceOrientationControls.getAlpha();
   const compensation = (window.screen.orientation.angle || 0) * (Math.PI / 180);
   userHeading -= compensation;
 
-  // Dann den relativen Winkel berechnen
   let relativeAngle = targetAngle - userHeading;
-  // Falls eine zusätzliche Korrektur (z. B. für iOS) notwendig ist, hier anwenden:
   relativeAngle += Math.PI;
-
-  // Normalisieren
   relativeAngle = ((relativeAngle + Math.PI) % (2 * Math.PI)) - Math.PI;
   pfeilARObjekt.rotation.set(0, relativeAngle, 0);
 
+  if (isIOS && !portraitMode) {
+    // Speichere die ursprüngliche Position, falls sie noch nicht gesetzt wurde
+    if (originalMarkerPosition.length() === 0) {
+      originalMarkerPosition.copy(zielmarkerARObjekt.position);
+    }
 
-  // Berechne den sensorbasierten Y-Winkel (ohne Kompass)
-  const tempQuat = new THREE.Quaternion();
-  const alpha = absoluteDeviceOrientationControls.getAlpha();
-  const beta  = absoluteDeviceOrientationControls.getBeta();
-  const gamma = absoluteDeviceOrientationControls.getGamma();
-  const orient = absoluteDeviceOrientationControls.screenOrientation || 0;
-  setObjectQuaternion(tempQuat, alpha, beta, gamma, orient);
-  const tempEuler = new THREE.Euler().setFromQuaternion(tempQuat, 'YXZ');
-  const sensorY = tempEuler.y;
+    const tempQuat = new THREE.Quaternion();
+    const alpha = absoluteDeviceOrientationControls.getAlpha();
+    const beta = absoluteDeviceOrientationControls.getBeta();
+    const gamma = absoluteDeviceOrientationControls.getGamma();
+    const orient = absoluteDeviceOrientationControls.screenOrientation || 0;
+    setObjectQuaternion(tempQuat, alpha, beta, gamma, orient);
+    const tempEuler = new THREE.Euler().setFromQuaternion(tempQuat, 'YXZ');
+    const sensorY = tempEuler.y;
 
-  // Berechne den kompassbasierten Y-Winkel (wie in deiner iOS-Logik)
-  const compassY = THREE.MathUtils.degToRad(360 - absoluteDeviceOrientationControls.deviceOrientation.webkitCompassHeading);
-  const delta = compassY - sensorY;
+    const compassY = THREE.MathUtils.degToRad(360 - absoluteDeviceOrientationControls.deviceOrientation.webkitCompassHeading);
+    const delta = compassY - sensorY;
 
-  // Ursprüngliche Markerposition in Weltkoordinaten
-  const markerPos = new THREE.Vector3(lonlatTarget[0], 1.5, lonlatTarget[1]);
+    const markerPos = new THREE.Vector3(lonlatTarget[0], 1.5, lonlatTarget[1]);
+    markerPos.sub(camera.position);
+    markerPos.applyAxisAngle(new THREE.Vector3(0,1,0), delta);
+    markerPos.add(camera.position);
 
-  // Markerposition relativ zur Kamera korrigieren
-  markerPos.sub(camera.position);
-  markerPos.applyAxisAngle(new THREE.Vector3(0,1,0), delta);
-  markerPos.add(camera.position);
-
-  // Setze die korrigierte Position
-  zielmarkerARObjekt.position.copy(markerPos);
-
+    zielmarkerARObjekt.position.copy(markerPos);
+  }
 }
 
 /**
@@ -261,4 +263,41 @@ function updateDistance() {
 
 window.matchMedia("(orientation: portrait)").addEventListener("change", e => {
   portraitMode = e.matches;
+
+  if (isIOS && portraitMode) {
+    // Setze den Marker auf die ursprüngliche Position zurück
+    zielmarkerARObjekt.position.copy(originalMarkerPosition);
+  }
+});
+
+window.addEventListener("click", (event) => {
+  // Berechne die normalisierten Mauskoordinaten
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  // Prüfe, ob direkt auf den AR-Marker geklickt wurde
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObject(zielmarkerARObjekt, true);
+
+  let markerClicked = false;
+  
+  if (intersects.length > 0) {
+    markerClicked = true;
+  } else {
+    // Falls kein direkter Treffer, erweitere den Klickbereich
+    const markerPosWorld = zielmarkerARObjekt.position.clone();
+    const markerPosScreen = markerPosWorld.project(camera);
+    const markerScreenX = (markerPosScreen.x + 1) / 2 * window.innerWidth;
+    const markerScreenY = (-markerPosScreen.y + 1) / 2 * window.innerHeight;
+    const dx = event.clientX - markerScreenX;
+    const dy = event.clientY - markerScreenY;
+    const distancePx = Math.sqrt(dx * dx + dy * dy);
+    if (distancePx < clickBuffer) {
+      markerClicked = true;
+    }
+  }
+
+  if (markerClicked) {
+    markerPopup.style.display = "block";
+  }
 });

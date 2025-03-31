@@ -3,56 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vite App</title>
-  <style>
-    /* CSS für das Distanz-Overlay */
-    #distance-overlay {
-      position: absolute;
-      bottom: 7%; /* Position unter dem Pfeil */
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 24px;
-      font-weight: bold;
-      color: white;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 5px 10px;
-      border-radius: 5px;
-      text-align: center;
-      z-index: 1000; /* Sicherstellen, dass es über dem Video ist */
-    }
-    #compassContainer {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      width: 60px;
-      height: 60px;
-      background-color: rgba(0, 0, 0, 0.7);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-    }
-    #compassArrow {
-      font-size: 40px;
-      color: white;
-    }
-
-    #compassText {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      text-align: center;
-      font-size: 12px;
-      color: white;
-    }
-  </style>
+  <link rel="stylesheet" href="/public/stylesheets/style.css" />
+  <title>AR Navigation Demo</title>
 </head>
 <body>
+  <div id="app"></div>
   <div id="overlay">
     <button id="btnStart">Start</button>
   </div>
-  
   <div id="lonlatinput">
     <label for="longitude">Longitude:</label>
     <input type="number" id="longitude" step="0.000001" value="7.651058">
@@ -60,13 +18,16 @@
     <label for="latitude">Latitude:</label>
     <input type="number" id="latitude" step="0.000001" value="51.935260">
   </div>
-  <!-- Distanzanzeige als Overlay -->
+  <div id="markerPopup">
+    AR-Marker wurde geklickt!
+    <span id="popupClose">X</span>
+  </div>
   <div id="distance-overlay">0 m</div>
   <div id="compassContainer">
     <div id="compassArrow">↑</div>
     <div id="compassText"></div>
   </div>
-  <div id="app"></div>
+  
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>
