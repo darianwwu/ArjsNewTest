@@ -3,13 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AR Demo Outdoor Navigation</title>
-  <script type="module" crossorigin src="./assets/index-Cs6G4pAk.js"></script>
+  <link rel="stylesheet" href="stylesheets/style.css" />
+  <title>Vite App</title>
+  <script type="module" crossorigin src="./assets/index-l-iNSOYn.js"></script>
 </head>
 <body>
   <div id="overlay">
     <button id="btnStart">Start</button>
   </div>
+  
   <div id="lonlatinput">
     <label for="longitude">Longitude:</label>
     <input type="number" id="longitude" step="0.000001" value="7.651058">
@@ -19,8 +21,7 @@
   </div>
   <!-- Distanzanzeige als Overlay -->
   <div id="distance-overlay">0 m</div>
-  <div id="distance-overlay2">0 m</div>
-  <div id="markerPopup"></div>
+  <div id="compassContainer">
     <div id="compassArrow">↑</div>
     <div id="compassText"></div>
   </div>
