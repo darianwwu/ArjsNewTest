@@ -60,13 +60,15 @@
 
 #markerPopup {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  background-color: white;
-  border: 1px solid #ccc;
-  padding: 10px;
-  z-index: 1000; /* Stellt sicher, dass das Popup immer über anderen Inhalten ist */
-  max-width: 300px; /* Optionale Breite */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  display: none; /* Anfangs nicht sichtbar */
+  z-index: 3;
 }
 
 #popupClose {
@@ -77,10 +79,6 @@
   position: absolute;
   top: 5px;
   right: 5px;
-}
-
-#popupContent {
-  margin-top: 20px; /* Um Abstand zu schaffen zwischen x und dem Inhalt */
 }
 
 button {
