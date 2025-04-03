@@ -3,11 +3,12 @@ import { THREE } from './AbsoluteDeviceOrientationControls.js';
 import { setObjectQuaternion } from './AbsoluteDeviceOrientationControls.js';
 
 export class ARNavigationArrow {
-  constructor({ locar, camera, deviceOrientationControl, targetCoords, currentCoords, isIOS, getScreenOrientation }) {
+  constructor({ locar, camera, deviceOrientationControl, getTargetCoords, currentCoords, isIOS, getScreenOrientation, getIndexActiveMarker }) {
+    this.getIndexActiveMarker = getIndexActiveMarker;
     this.locar = locar;
     this.camera = camera;
     this.deviceOrientationControl = deviceOrientationControl;
-    this.targetCoords = targetCoords;
+    this.getTargetCoords = getTargetCoords;
     this.currentCoords = currentCoords;
     this.isIOS = isIOS;
     this.getScreenOrientation = getScreenOrientation;
@@ -38,7 +39,11 @@ export class ARNavigationArrow {
     const { type, angle } = this.getScreenOrientation();
 
     // Umrechnung der Zielkoordinaten in Weltkoordinaten
-    const lonlatTarget = this.locar.lonLatToWorldCoords(this.targetCoords.longitude, this.targetCoords.latitude);
+    console.log('getTargetCoords', this.getTargetCoords(), this.getIndexActiveMarker());
+    const targetCoordsArray = this.getTargetCoords();
+    const activeIndex = this.getIndexActiveMarker();
+
+    const lonlatTarget = this.locar.lonLatToWorldCoords(targetCoordsArray[activeIndex].longitude, targetCoordsArray[activeIndex].latitude);
     const targetWorldPos = new THREE.Vector3(lonlatTarget[0], 1.5, lonlatTarget[1]);
 
     // Umrechnung der Nutzerkoordinaten in Weltkoordinaten

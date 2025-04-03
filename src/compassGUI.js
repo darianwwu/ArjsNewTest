@@ -22,11 +22,11 @@ export class CompassGUI {
     
     // Anpassung basierend auf der ScreenOrientation API
     // Smartphone nach links gekippt (+90°)
-    if (angle === 'landscape-primary') {
+    if (type === 'landscape-primary') {
       heading = (heading + 90 + 360) % 360;
     }
     // Smartphone nach rechts gekippt (-90°)
-    else if (angle === 'landscape-secondary') {
+    else if (type === 'landscape-secondary') {
       heading = (heading - 90 + 360) % 360;
     }
       

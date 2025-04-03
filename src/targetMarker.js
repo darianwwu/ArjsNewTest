@@ -2,10 +2,10 @@ import { THREE } from './AbsoluteDeviceOrientationControls.js';
 import { setObjectQuaternion } from './AbsoluteDeviceOrientationControls.js';
 
 export class TargetMarker {
-  constructor({ locar, camera, targetCoords, isIOS, getScreenOrientation, onClick, deviceOrientationControl }) {
+  constructor({ locar, camera, markerCoords, isIOS, getScreenOrientation, onClick, deviceOrientationControl }) {
     this.locar = locar;
     this.camera = camera;
-    this.targetCoords = targetCoords;
+    this.markerCoords = markerCoords;
     this.isIOS = isIOS;
     this.getScreenOrientation = getScreenOrientation;
     this.onClick = onClick;
@@ -29,7 +29,7 @@ export class TargetMarker {
     const markerMaterial = new THREE.SpriteMaterial({ map: markerTexture });
     this.markerObject = new THREE.Sprite(markerMaterial);
     this.markerObject.scale.set(5, 5, 1);
-    this.locar.add(this.markerObject, this.targetCoords.longitude, this.targetCoords.latitude);
+    this.locar.add(this.markerObject, this.markerCoords.longitude, this.markerCoords.latitude);
     this.markerAdded = true;
     this.originalMarkerPosition.copy(this.markerObject.position);
   }
@@ -42,7 +42,7 @@ export class TargetMarker {
     
     let lonlatTarget;
     try {
-      lonlatTarget = this.locar.lonLatToWorldCoords(this.targetCoords.longitude, this.targetCoords.latitude);
+      lonlatTarget = this.locar.lonLatToWorldCoords(this.markerCoords.longitude, this.markerCoords.latitude);
     } catch (e) {
       if (e === "No initial position determined") {
         // Wenn noch keine Initialposition vorhanden ist, Update überspringen

@@ -11,8 +11,9 @@ let scene, camera, renderer;
 let locar, cam, absoluteDeviceOrientationControls;
 let compass;
 let arrow = null;
-let marker = null;
-const targetCoords = { longitude: 7.651058, latitude: 51.935260 };
+let markers = [];
+let targetCoords = [{ longitude: 7.651058, latitude: 51.935260 }];
+let indexActiveMarker = 0;
 const currentCoords = { longitude: null, latitude: null };
 let screenOrientation = { type: screen.orientation?.type, angle: screen.orientation?.angle};
 
@@ -36,10 +37,19 @@ screen.orientation.addEventListener("change", (event) => {
 window.onload = () => {
   const overlayContainer = document.getElementById("overlayContainer");
   const startBtn = document.getElementById("btnStart");
+  const hinzufuegenBtn = document.getElementById("btnAddMarker");
+
+  hinzufuegenBtn.addEventListener("click", () => {
+    const newMarker = {
+      longitude: parseFloat(lonInput.value),
+      latitude: parseFloat(latInput.value),
+      popupContent: "Dies ist ein Marker!"
+    };
+    targetCoords.push(newMarker);
+    console.log("Neuer Marker hinzugefügt:", newMarker);
+  });
 
   startBtn.addEventListener('click', () => {
-    targetCoords.longitude = parseFloat(lonInput.value);
-    targetCoords.latitude = parseFloat(latInput.value);
     document.body.removeChild(overlayContainer);
     init();
   });
@@ -99,13 +109,15 @@ function init() {
     // Initialposition und AR-Elemente setzen
     if (!initialPositionSet) {
       initialPositionSet = true;
-      addElements();
+      addCompass();
+      addArrow();
+      addAllMarkers();
     }
     
     // AR-Elemente aktualisieren
     if (arrow) arrow.update();
-    if (marker) marker.update();
-    updateDistance(currentCoords, targetCoords, distanceOverlay);
+    markers.forEach(markerInstance => markerInstance.update());
+    updateDistance(currentCoords, targetCoords[indexActiveMarker], distanceOverlay);
   });
 
   locar.startGps();
@@ -115,40 +127,46 @@ function init() {
 /**
  * Fügt die AR-Elemente (Kompass, Navigationspfeil, Zielmarker) zur Szene hinzu.
  */
-function addElements () {
-    // Kompass-GUI initialisieren
-    compass = new CompassGUI({
-      deviceOrientationControl: absoluteDeviceOrientationControls,
-      compassArrowId: "compassArrow",
-      compassTextId: "compassText",
-      getScreenOrientation: () => screenOrientation,
-    });
+function addCompass() {
+  // Kompass-GUI initialisieren
+  compass = new CompassGUI({
+    deviceOrientationControl: absoluteDeviceOrientationControls,
+    compassArrowId: "compassArrow",
+    compassTextId: "compassText",
+    getScreenOrientation: () => screenOrientation,
+  });
+}
 
-    // AR-Navigationspfeil initialisieren
-    arrow = new ARNavigationArrow({
-      locar: locar,
-      camera: camera,
-      deviceOrientationControl: absoluteDeviceOrientationControls,
-      targetCoords: targetCoords,
-      currentCoords: currentCoords,
-      isIOS: isIOS,
-      getScreenOrientation: () => screenOrientation,
-    });
-    arrow.initArrow('./glbmodell/Pfeil5.glb');
+function addArrow() {
+  // AR-Navigationspfeil initialisieren
+  arrow = new ARNavigationArrow({
+    locar: locar,
+    camera: camera,
+    deviceOrientationControl: absoluteDeviceOrientationControls,
+    getTargetCoords: () => targetCoords,
+    currentCoords: currentCoords,
+    isIOS: isIOS,
+    getScreenOrientation: () => screenOrientation,
+    getIndexActiveMarker: () => indexActiveMarker,
+  });
+  arrow.initArrow('./glbmodell/Pfeil5.glb');
+}
 
-    // Zielmarker initialisieren
-    marker = new TargetMarker({
-      locar: locar,
-      camera: camera,
-      targetCoords: targetCoords,
-      isIOS: isIOS,
-      getScreenOrientation: () => screenOrientation,
-      onClick: () => {
-        markerPopup.style.display = "block";
-      },
-      deviceOrientationControl: absoluteDeviceOrientationControls
-    });
-    marker.initMarker('./images/map-marker.png');
+function addMarker(markerData) {
+  const marker = new TargetMarker({
+    locar: locar,
+    camera: camera,
+    markerCoords: { latitude: markerData.latitude, longitude: markerData.longitude },
+    isIOS: isIOS,
+    getScreenOrientation: () => screenOrientation,
+    onClick: () => {
+      markerPopup.innerText = markerData.popupContent;
+      markerPopup.style.display = "block";
+    },
+    deviceOrientationControl: absoluteDeviceOrientationControls
+  });
+  marker.initMarker('./images/map-marker.png');
+  markers.push(marker);
 }
 
 /**
@@ -157,11 +175,18 @@ function addElements () {
 function animate() {
   // Update der AR-Elemente nur, falls initialisiert
   if (arrow) arrow.update();
-  if (marker) marker.update();
+  markers.forEach(markerInstance => markerInstance.update());
   if(compass) compass.update();
   
-  updateDistance(currentCoords, targetCoords, distanceOverlay);
+  updateDistance(currentCoords, targetCoords[indexActiveMarker], distanceOverlay);
   cam.update();
   absoluteDeviceOrientationControls.update();
   renderer.render(scene, camera);
+}
+
+function addAllMarkers() {
+  // Über jedes gespeicherte Marker-Datenobjekt iterieren und addMarker aufrufen
+  targetCoords.forEach(markerData => {
+    addMarker(markerData);
+  });
 }
