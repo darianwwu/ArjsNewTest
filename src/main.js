@@ -12,7 +12,7 @@ let locar, cam, absoluteDeviceOrientationControls;
 let compass;
 let arrow = null;
 let markers = [];
-let targetCoords = [{ longitude: 7.651058, latitude: 51.935260 }];
+let targetCoords = [];
 let indexActiveMarker = 0;
 const currentCoords = { longitude: null, latitude: null };
 let screenOrientation = { type: screen.orientation?.type, angle: screen.orientation?.angle};
@@ -152,7 +152,7 @@ function addArrow() {
   arrow.initArrow('./glbmodell/Pfeil5.glb');
 }
 
-function addMarker(markerData) {
+function addMarker(markerData, index) {
   const marker = new TargetMarker({
     locar: locar,
     camera: camera,
@@ -162,11 +162,29 @@ function addMarker(markerData) {
     onClick: () => {
       markerPopup.innerText = markerData.popupContent;
       markerPopup.style.display = "block";
+      setActiveMarker(index);
+      
+      // Schließe den Marker-Popup nach 5 Sekunden
+      setTimeout(() => {
+        markerPopup.style.display = "none";
+      }, 5000);
     },
     deviceOrientationControl: absoluteDeviceOrientationControls
   });
   marker.initMarker('./images/map-marker.png');
   markers.push(marker);
+}
+
+function addAllMarkers() {
+  // Über jedes gespeicherte Marker-Datenobjekt iterieren und addMarker aufrufen
+  targetCoords.forEach((markerData, index) => {
+    addMarker(markerData, index);
+  });
+}
+
+function setActiveMarker(index) {
+  indexActiveMarker = index;
+  console.log("Aktiver Marker gesetzt:", indexActiveMarker);
 }
 
 /**
@@ -182,11 +200,4 @@ function animate() {
   cam.update();
   absoluteDeviceOrientationControls.update();
   renderer.render(scene, camera);
-}
-
-function addAllMarkers() {
-  // Über jedes gespeicherte Marker-Datenobjekt iterieren und addMarker aufrufen
-  targetCoords.forEach(markerData => {
-    addMarker(markerData);
-  });
 }
