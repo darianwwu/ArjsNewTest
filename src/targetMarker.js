@@ -33,6 +33,15 @@ export class TargetMarker {
     this.markerAdded = true;
     this.originalMarkerPosition.copy(this.markerObject.position);
   }
+
+  updateMarkerImage(newImageUrl) {
+    const textureLoader = new THREE.TextureLoader();
+    const newTexture = textureLoader.load(newImageUrl, () => {
+      // Sobald die Textur geladen ist, das Material aktualisieren:
+      this.markerObject.material.map = newTexture;
+      this.markerObject.material.needsUpdate = true;
+    });
+  }
   
   // Aktualisiert die Position und Rotation des Zielmarkers
   update() {

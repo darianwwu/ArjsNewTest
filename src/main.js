@@ -43,7 +43,7 @@ window.onload = () => {
     const newMarker = {
       longitude: parseFloat(lonInput.value),
       latitude: parseFloat(latInput.value),
-      popupContent: "Dies ist ein Marker!"
+      popupContent: "Ziel aktualisiert!"
     };
     targetCoords.push(newMarker);
     console.log("Neuer Marker hinzugefügt:", newMarker);
@@ -185,6 +185,15 @@ function addAllMarkers() {
 function setActiveMarker(index) {
   indexActiveMarker = index;
   console.log("Aktiver Marker gesetzt:", indexActiveMarker);
+  
+  // Alle Marker aktualisieren:
+  markers.forEach((marker, idx) => {
+    if(idx === indexActiveMarker) {
+      marker.updateMarkerImage('./images/map-marker.png');
+    } else {
+      marker.updateMarkerImage('./images/map-marker-grau.png');
+    }
+  });
 }
 
 /**
