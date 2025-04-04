@@ -13,7 +13,7 @@ export class TargetMarker {
     this.markerObject = null;
     this.markerAdded = false;
     this.originalMarkerPosition = new THREE.Vector3();
-    this.clickBuffer = 50;
+    this.clickBuffer = 20;
     
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
@@ -34,6 +34,7 @@ export class TargetMarker {
     this.originalMarkerPosition.copy(this.markerObject.position);
   }
 
+  // Wechselt das Bild des Zielmarkers zwischen orange und grau
   updateMarkerImage(newImageUrl) {
     const textureLoader = new THREE.TextureLoader();
     const newTexture = textureLoader.load(newImageUrl, () => {

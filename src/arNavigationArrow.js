@@ -14,6 +14,11 @@ export class ARNavigationArrow {
     this.getScreenOrientation = getScreenOrientation;
     this.loader = new GLTFLoader();
     this.arrowObject = null;
+    // Flag, ob der Pfeil transparent ist
+    this.isTransparent = false;
+    
+    // Bind the handleClick method so we can remove it later if needed
+    this.handleClick = this.handleClick.bind(this);
   }
 
   // Initialisiert den AR-Navigationspfeil
@@ -21,13 +26,52 @@ export class ARNavigationArrow {
     this.loader.load(modelPath, (gltf) => {
       this.arrowObject = gltf.scene;
       this.arrowObject.scale.set(0.3, 0.3, 0.3);
-      // Frustrum Culling deaktivieren, damit der Pfeil immer sichtbar ist
+      // Frustum Culling deaktivieren, damit der Pfeil immer sichtbar ist
       this.arrowObject.traverse(child => child.frustumCulled = false);
       // Pfeil dem Kamera-Objekt hinzufügen
       this.camera.add(this.arrowObject);
       this.arrowObject.position.set(0, -1, -3);
+      // Klick-Listener registrieren
+      window.addEventListener("click", this.handleClick);
       onLoadCallback();
     });
+  }
+
+  // Methode zum Umschalten der Transparenz
+  toggleTransparency() {
+    if (!this.arrowObject) return;
+    
+    // Bestimme die neue Opacity: 0.5 wenn aktuell normal, 1 wenn transparent
+    const newOpacity = this.isTransparent ? 1 : 0.2;
+    
+    // Durchlaufe alle Kinder und setze transparent und opacity
+    this.arrowObject.traverse(child => {
+      if (child.material) {
+        child.material.transparent = true;
+        child.material.opacity = newOpacity;
+        child.material.needsUpdate = true;
+      }
+    });
+    // Flag umschalten
+    this.isTransparent = !this.isTransparent;
+  }
+  
+  // Klick-Handler, der per Raycaster prüft, ob auf den Pfeil geklickt wurde
+  handleClick(event) {
+    if (!this.arrowObject) return;
+    
+    const mouse = new THREE.Vector2();
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, this.camera);
+    const intersects = raycaster.intersectObject(this.arrowObject, true);
+    
+    if (intersects.length > 0) {
+      // Pfeil wurde angeklickt – Transparenz umschalten
+      this.toggleTransparency();
+    }
   }
 
   // Aktualisiert die Position und Rotation des AR-Navigationspfeils
@@ -73,5 +117,10 @@ export class ARNavigationArrow {
       const orient = angle || 0;
       setObjectQuaternion(tempQuat, alpha, beta, gamma, orient);
     }
+  }
+
+  // Optional: Entferne den Klick-Listener, falls der Pfeil entfernt wird
+  dispose() {
+    window.removeEventListener("click", this.handleClick);
   }
 }
