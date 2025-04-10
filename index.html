@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AR Navigation Demo</title>
-  <script type="module" crossorigin src="./assets/index-Be_ETkI4.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-36Y5UoTK.css">
+  <script type="module" crossorigin src="./assets/index-CjhuC7uQ.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DGHs48eA.css">
 </head>
 <body>
   <div id="overlayContainer">
@@ -18,11 +18,13 @@
     <button id="btnAddMarker">Hinzufügen</button>
     <br>
     <button id="btnStart">Start</button>
+    <br>
+    <button id="btnTestAdd">5 Testmarker hinzufügen</button>
   </div>
   <div id="arContainer">
     <div id="arView"></div>
-    <div id="markerPopup">
-      AR-Marker wurde geklickt!
+    <div id="markerPopup" style="display: none;">
+      <p id="markerPopupText">AR-Marker wurde geklickt!</p>
       <span id="popupClose">X</span>
     </div>
     <div id="distance-overlay">0 m</div>
