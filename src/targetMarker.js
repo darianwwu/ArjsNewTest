@@ -28,7 +28,7 @@ export class TargetMarker {
     const markerTexture = textureLoader.load(markerImageUrl);
     const markerMaterial = new THREE.SpriteMaterial({ map: markerTexture });
     this.markerObject = new THREE.Sprite(markerMaterial);
-    this.markerObject.scale.set(5, 5, 1);
+    this.markerObject.scale.set(10, 10, 1);
     this.locar.add(this.markerObject, this.markerCoords.longitude, this.markerCoords.latitude);
     this.markerAdded = true;
     this.originalMarkerPosition.copy(this.markerObject.position);

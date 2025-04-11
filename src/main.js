@@ -22,7 +22,6 @@ const lonInput = document.getElementById("longitude");
 const latInput = document.getElementById("latitude");
 const distanceOverlay = document.getElementById("distance-overlay");
 const markerPopup = document.getElementById("markerPopup");
-const markerPopupText = document.getElementById("markerPopupText");
 const closeButton = document.getElementById("popupClose");
 
 // Event-Listener
@@ -50,6 +49,13 @@ window.onload = () => {
     };
     targetCoords.push(newMarker);
     console.log("Neuer Marker hinzugefügt:", newMarker);
+    markerPopupText.textContent = "Marker hinzugefügt!";
+        markerPopup.style.display = "block";
+
+        // Automatisches Schließen des Popups nach 5 Sekunden
+        setTimeout(() => {
+          markerPopup.style.display = "none";
+        }, 1500);
   });
 
   startBtn.addEventListener('click', () => {
@@ -110,6 +116,14 @@ window.onload = () => {
     };
     targetCoords.push(testMarker1, testMarker2, testMarker3, testMarker4, testMarker5);
     console.log("targetCoords:", targetCoords);
+
+    markerPopupText.textContent = " 5 Marker hinzugefügt!";
+        markerPopup.style.display = "block";
+
+        // Automatisches Schließen des Popups nach 1,5 Sekunden
+        setTimeout(() => {
+          markerPopup.style.display = "none";
+        }, 1500);
   });
 };
 
@@ -127,7 +141,7 @@ function init() {
   directionalLight.position.set(1, 1, 1);
   scene.add(directionalLight);
 
-  camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.001, 500);
+  camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.001, 1000);
   scene.add(camera);
 
   renderer = new THREE.WebGLRenderer({ logarithmicDepthBuffer: true });
