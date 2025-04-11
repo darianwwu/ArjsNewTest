@@ -32,6 +32,7 @@ export class TargetMarker {
     this.locar.add(this.markerObject, this.markerCoords.longitude, this.markerCoords.latitude);
     this.markerAdded = true;
     this.originalMarkerPosition.copy(this.markerObject.position);
+    
   }
 
   // Wechselt das Bild des Zielmarkers zwischen orange und grau
@@ -44,7 +45,7 @@ export class TargetMarker {
     });
   }
   
-  // Aktualisiert die Position und Rotation des Zielmarkers
+  // Aktualisiert die Position des Zielmarkers
   update() {
     if (!this.markerObject) return;
 

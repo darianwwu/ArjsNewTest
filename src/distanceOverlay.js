@@ -24,5 +24,14 @@ export function updateDistance(currentCoords, targetCoords, distanceOverlay) {
     targetCoords.latitude,
     targetCoords.longitude
   );
-  distanceOverlay.innerText = `${Math.round(distance)} m`;
+
+  // Wenn Entfernung größer als 1000 m, in km anzeigen
+  if (distance >= 1000) {
+    const km = distance / 1000;
+    // Formatieren auf eine Nachkommastelle, Komma statt Punkt als Dezimaltrennzeichen
+    const kmString = km.toFixed(1).replace('.', ',');
+    distanceOverlay.innerText = `${kmString} km`;
+  } else {
+    distanceOverlay.innerText = `${Math.round(distance)} m`;
+  }
 }

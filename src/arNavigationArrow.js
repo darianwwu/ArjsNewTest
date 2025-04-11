@@ -14,10 +14,7 @@ export class ARNavigationArrow {
     this.getScreenOrientation = getScreenOrientation;
     this.loader = new GLTFLoader();
     this.arrowObject = null;
-    // Flag, ob der Pfeil transparent ist
     this.isTransparent = false;
-    
-    // Bind the handleClick method so we can remove it later if needed
     this.handleClick = this.handleClick.bind(this);
   }
 
@@ -40,11 +37,8 @@ export class ARNavigationArrow {
   // Methode zum Umschalten der Transparenz
   toggleTransparency() {
     if (!this.arrowObject) return;
-    
-    // Bestimme die neue Opacity: 0.5 wenn aktuell normal, 1 wenn transparent
     const newOpacity = this.isTransparent ? 1 : 0.2;
     
-    // Durchlaufe alle Kinder und setze transparent und opacity
     this.arrowObject.traverse(child => {
       if (child.material) {
         child.material.transparent = true;
@@ -52,7 +46,6 @@ export class ARNavigationArrow {
         child.material.needsUpdate = true;
       }
     });
-    // Flag umschalten
     this.isTransparent = !this.isTransparent;
   }
   
@@ -83,7 +76,6 @@ export class ARNavigationArrow {
     const { type, angle } = this.getScreenOrientation();
 
     // Umrechnung der Zielkoordinaten in Weltkoordinaten
-    console.log('getTargetCoords', this.getTargetCoords(), this.getIndexActiveMarker());
     const targetCoordsArray = this.getTargetCoords();
     const activeIndex = this.getIndexActiveMarker();
 
@@ -119,7 +111,7 @@ export class ARNavigationArrow {
     }
   }
 
-  // Optional: Entferne den Klick-Listener, falls der Pfeil entfernt wird
+  // Entferne den Klick-Listener, falls der Pfeil entfernt wird
   dispose() {
     window.removeEventListener("click", this.handleClick);
   }
