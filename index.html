@@ -1,37 +1,19 @@
 <!DOCTYPE html>
-<html lang="de">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>AR Navigation Demo</title>
-  <script type="module" crossorigin src="./assets/index-Dvo2IIbk.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DRXKkts8.css">
+  <script type="module" crossorigin src="./assets/index-CH140YnU.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-D1ozsMkJ.css">
 </head>
 <body>
-  <div id="overlayContainer">
-    <label for="longitude">Longitude:</label>
-    <input type="number" id="longitude" step="0.000001" value="7.651058">
-    <br>
-    <label for="latitude">Latitude:</label>
-    <input type="number" id="latitude" step="0.000001" value="51.935260">
-    <br>
-    <button id="btnAddMarker">Hinzufügen</button>
-    <br>
-    <button id="btnStart">Start</button>
-    <br>
-    <button id="btnTestAdd">5 Testmarker hinzufügen</button>
-  </div>
-  <div id="arContainer">
-    <div id="arView"></div>
-    <div id="markerPopup" style="display: none;">
-      <p id="markerPopupText">AR-Marker wurde geklickt!</p>
-      <span id="popupClose">X</span>
-    </div>
-    <div id="distance-overlay">0 m</div>
-    <div id="compassContainer">
-      <div id="compassArrow">↑</div>
-      <div id="compassText"></div>
-    </div>
-  </div>
+<main>
+<div id="gpsinput">
+<div><input id="fakeLat" placeholder="Fake Lat" /></div>
+<div><input id="fakeLon" placeholder="Fake Lon"/></div>
+<div><button id="setFakeLoc">Set Fake Location!</button></div>
+</div>
+<a-scene id="glscene" locar-webcam>
+<a-camera look-controls='magicWindowTrackingEnabled: false' wasd-controls locar-camera></a-camera>
+</a-scene>
+</main>
 </body>
 </html>
