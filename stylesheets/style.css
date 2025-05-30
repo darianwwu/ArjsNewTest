@@ -1,4 +1,4 @@
-/* CSS Design System - Variablen */
+    /* CSS Design System - Variablen */
     :root {
       /* Farben */
       --color-primary: #2c5f2d;
@@ -361,10 +361,10 @@
       height: 100%;
     }
     
-/* Distance Overlay */
+    /* Distance Overlay */
     .distance-overlay {
       position: absolute;
-      bottom: 2%;
+      bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
       font-size: var(--font-size-lg);
@@ -399,16 +399,48 @@
     .compass-arrow {
       font-size: 40px;
       color: var(--color-surface);
+      position: relative;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* Kompassnadel Design */
+    .compass-arrow::before {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-bottom: 20px solid #ff4444;
+      top: 5px;
+    }
+    
+    .compass-arrow::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-top: 20px solid #cccccc;
+      bottom: 5px;
     }
     
     .compass-text {
       position: absolute;
-      bottom: -5px;
+      bottom: -20px;
       width: 100%;
       text-align: center;
       font-size: var(--font-size-xs);
       color: var(--color-surface);
       font-weight: var(--font-weight-semibold);
+      background: rgba(0, 0, 0, 0.75);
+      padding: 2px 6px;
+      border-radius: 10px;
     }
     
     /* Marker Popup */
@@ -482,5 +514,19 @@
       
       .compass-arrow {
         font-size: 32px;
+      }
+      
+      .compass-arrow::before {
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-bottom: 16px solid #ff4444;
+        top: 8px;
+      }
+      
+      .compass-arrow::after {
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 16px solid #cccccc;
+        bottom: 8px;
       }
     }
