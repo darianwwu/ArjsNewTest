@@ -1,4 +1,4 @@
-/* CSS Design System - Variablen */
+ /* CSS Design System - Variablen */
     :root {
       /* Farben */
       --color-primary: #2c5f2d;
@@ -407,26 +407,27 @@
       justify-content: center;
     }
     
-    /* Kompassnadel Design - klassische Raute */
+    /* Kompassnadel Design - Pfeilspitze */
     .compass-arrow::before {
       content: '';
       position: absolute;
-      width: 4px;
-      height: 35px;
-      background: linear-gradient(to bottom, #e74c3c 0%, #e74c3c 50%, #95a5a6 50%, #95a5a6 100%);
-      transform: rotate(0deg);
-      box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 12px 20px 12px;
+      border-color: transparent transparent white transparent;
+      transform: translateY(-2px);
     }
     
     .compass-arrow::after {
       content: '';
       position: absolute;
-      width: 12px;
-      height: 12px;
-      background: #e74c3c;
-      transform: rotate(45deg);
-      top: 8px;
-      box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 10px 6px 0 6px;
+      border-color: white transparent transparent transparent;
+      bottom: 10px;
     }
     
     .compass-text {
@@ -516,14 +517,12 @@
       }
       
       .compass-arrow::before {
-        width: 3px;
-        height: 28px;
-        top: 6px;
+        border-width: 0 10px 16px 10px;
+        transform: translateY(-1px);
       }
       
       .compass-arrow::after {
-        width: 10px;
-        height: 10px;
-        top: 10px;
+        border-width: 8px 5px 0 5px;
+        bottom: 12px;
       }
     }
