@@ -4,34 +4,99 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>AR Navigation Demo</title>
-  <script type="module" crossorigin src="./assets/index-Dvo2IIbk.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DRXKkts8.css">
+  <script type="module" crossorigin src="./assets/index-CBNf96Ol.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-C3t09qSO.css">
 </head>
 <body>
-  <div id="overlayContainer">
-    <label for="longitude">Longitude:</label>
-    <input type="number" id="longitude" step="0.000001" value="7.651058">
-    <br>
-    <label for="latitude">Latitude:</label>
-    <input type="number" id="latitude" step="0.000001" value="51.935260">
-    <br>
-    <button id="btnAddMarker">Hinzufügen</button>
-    <br>
-    <button id="btnStart">Start</button>
-    <br>
-    <button id="btnTestAdd">5 Testmarker hinzufügen</button>
+  <div id="splashScreen" class="splash-screen">
+    <div class="splash-logo">🌲</div>
+    <h1 class="splash-title">AR Navigation</h1>
+    <p class="splash-subtitle">im Wald-Kontext</p>
+    <div class="loading-bar">
+      <div class="loading-progress"></div>
+    </div>
   </div>
-  <div id="arContainer">
+  
+  <div id="overlayContainer" class="overlay-container">
+    <div class="form-container">
+      <div class="form-header">
+        <h2 class="form-title">Standort eingeben</h2>
+        <p class="form-subtitle">Füge neue Navigationspunkte hinzu</p>
+      </div>
+      
+      <div class="form-group">
+        <label for="longitude" class="form-label">Längengrad (Longitude)</label>
+        <input 
+          type="number" 
+          id="longitude" 
+          class="form-input" 
+          step="0.000001" 
+          value="7.651058" 
+          placeholder="z.B. 7.651058"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="latitude" class="form-label">Breitengrad (Latitude)</label>
+        <input 
+          type="number" 
+          id="latitude" 
+          class="form-input" 
+          step="0.000001" 
+          value="51.935260" 
+          placeholder="z.B. 51.935260"
+        >
+      </div>
+      
+      <button id="btnAddMarker" class="btn btn--primary">Marker hinzufügen</button>
+      <button id="btnStart" class="btn btn--accent">Navigation starten</button>
+      
+      <div class="divider">oder</div>
+      
+      <button id="btnTestAdd" class="btn btn--outline">5 Testmarker laden</button>
+    </div>
+  </div>
+  
+  <div id="arContainer" class="ar-container">
     <div id="arView"></div>
-    <div id="markerPopup" style="display: none;">
-      <p id="markerPopupText">AR-Marker wurde geklickt!</p>
-      <span id="popupClose">X</span>
+    <div id="markerPopup" class="marker-popup">
+      <p id="markerPopupText" class="marker-popup__text">AR-Marker wurde geklickt!</p>
+      <span id="popupClose" class="marker-popup__close">✕</span>
     </div>
-    <div id="distance-overlay">0 m</div>
-    <div id="compassContainer">
-      <div id="compassArrow">↑</div>
-      <div id="compassText"></div>
+    <div id="distance-overlay" class="distance-overlay">0 m</div>
+    <div id="compassContainer" class="compass-container">
+      <div id="compassArrow" class="compass-arrow">↑</div>
+      <div id="compassText" class="compass-text"></div>
     </div>
-  </div>
+  </div>
+  
+  <script>
+    setTimeout(() => {
+      const splash = document.getElementById('splashScreen');
+      splash.classList.add('splash-screen--hidden');
+      setTimeout(() => {
+        splash.style.display = 'none';
+      }, 350);
+    }, 2500);
+    
+    const markerPopup = document.getElementById('markerPopup');
+    const closeButton = document.getElementById('popupClose');
+    
+    closeButton.addEventListener('click', () => {
+      markerPopup.classList.remove('marker-popup--visible');
+    });
+    
+    window.showMarkerPopup = (text, duration = 5000) => {
+      const popupText = document.getElementById('markerPopupText');
+      popupText.textContent = text;
+      markerPopup.classList.add('marker-popup--visible');
+      
+      if (duration > 0) {
+        setTimeout(() => {
+          markerPopup.classList.remove('marker-popup--visible');
+        }, duration);
+      }
+    };
+  </script>
 </body>
 </html>
