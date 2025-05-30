@@ -364,7 +364,7 @@
     /* Distance Overlay */
     .distance-overlay {
       position: absolute;
-      bottom: 3%;
+      bottom: 2%;
       left: 50%;
       transform: translateX(-50%);
       font-size: var(--font-size-xl);
@@ -373,7 +373,7 @@
       background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(10px);
       padding: var(--spacing-md) var(--spacing-lg);
-      border-radius: 30px;
+      border-radius: 10px;
       text-align: center;
       z-index: var(--z-index-base);
       box-shadow: var(--shadow-lg);
