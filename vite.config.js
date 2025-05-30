@@ -4,5 +4,5 @@ export default {
   plugins: [
     basicSsl()
   ],
-  base: './', // <-- Diese Zeile hinzufügen!
+  base: './',
 }
