@@ -401,7 +401,7 @@
       color: var(--color-surface);
       position: relative;
       width: 40px;
-      height: 40px;
+      height: 60px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -456,8 +456,8 @@
       font-weight: var(--font-weight-bold);
       font-size: 20px;
       position: absolute;
-      top: var(--spacing-md);
-      right: var(--spacing-md);
+      top: 5px;
+      right: 5px;
       width: 32px;
       height: 32px;
       display: flex;
